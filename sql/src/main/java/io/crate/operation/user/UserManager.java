@@ -24,6 +24,8 @@ package io.crate.operation.user;
 
 import io.crate.analyze.CreateUserAnalyzedStatement;
 import io.crate.analyze.DropUserAnalyzedStatement;
+import io.crate.metadata.sys.SysSchemaInfo;
+import org.elasticsearch.cluster.service.ClusterService;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -31,6 +33,11 @@ import java.util.concurrent.CompletableFuture;
  * responsible for creating and deleting users
  */
 public interface UserManager {
+
+    /**
+     * initialize is called immediately after creating an instance
+     */
+    void initialize(ClusterService clusterService, SysSchemaInfo sysSchemaInfo);
 
     /**
      * creates a user

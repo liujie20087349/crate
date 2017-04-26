@@ -26,7 +26,9 @@ import io.crate.action.sql.DDLStatementDispatcher;
 import io.crate.analyze.CreateUserAnalyzedStatement;
 import io.crate.analyze.DropUserAnalyzedStatement;
 import io.crate.exceptions.UnsupportedFeatureException;
+import io.crate.metadata.sys.SysSchemaInfo;
 import io.crate.test.integration.CrateUnitTest;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
@@ -44,6 +46,9 @@ public class UserManagementTest extends CrateUnitTest {
         }
 
         @Override
+        public void initialize(ClusterService clusterService, SysSchemaInfo sysSchemaInfo) {}
+
+        @Override
         public CompletableFuture<Long> createUser(CreateUserAnalyzedStatement analysis) {
             return createResult();
         }
@@ -59,6 +64,7 @@ public class UserManagementTest extends CrateUnitTest {
         private final UserManager manager;
 
         private TestProvider(UserManager manager) {
+            super(null, null);
             this.manager = manager;
         }
 

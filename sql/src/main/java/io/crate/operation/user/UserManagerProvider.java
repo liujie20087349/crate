@@ -22,13 +22,37 @@
 
 package io.crate.operation.user;
 
+import io.crate.metadata.sys.SysSchemaInfo;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Provider;
+import org.elasticsearch.common.inject.Singleton;
 
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
+
+@Singleton
 public class UserManagerProvider implements Provider<UserManager> {
 
-    @Inject(optional = true)
-    public UserManager userManager;
+    private final UserManager userManager;
+
+    @Inject
+    public UserManagerProvider(ClusterService clusterService,
+                               SysSchemaInfo sysSchemaInfo) {
+        Iterator<UserManager> userManagerIterator = ServiceLoader.load(UserManager.class).iterator();
+        UserManager userManager = null;
+        while (userManagerIterator.hasNext()) {
+            if (userManager != null) {
+                throw new ServiceConfigurationError("UserManager implemented twice");
+            }
+            userManager = userManagerIterator.next();
+        }
+        if (userManager != null) {
+            userManager.initialize(clusterService, sysSchemaInfo);
+        }
+        this.userManager = userManager;
+    }
 
 
     @Override
