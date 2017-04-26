@@ -40,11 +40,11 @@ public class UserManagerProvider implements Provider<UserManager> {
     @Inject
     public UserManagerProvider(ClusterService clusterService,
                                SysSchemaInfo sysSchemaInfo) {
-        Iterator<UserManager.Factory> userManagerIterator = ServiceLoader.load(UserManager.Factory.class).iterator();
-        UserManager.Factory userManagerFactory = null;
+        Iterator<UserManagerFactory> userManagerIterator = ServiceLoader.load(UserManagerFactory.class).iterator();
+        UserManagerFactory userManagerFactory = null;
         while (userManagerIterator.hasNext()) {
             if (userManagerFactory != null) {
-                throw new ServiceConfigurationError("UserManager.Factory found twice");
+                throw new ServiceConfigurationError("UserManagerFactory found twice");
             }
             userManagerFactory = userManagerIterator.next();
         }

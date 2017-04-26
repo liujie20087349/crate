@@ -24,91 +24,26 @@ package io.crate.operation.user;
 
 import io.crate.action.sql.DDLStatementDispatcher;
 import io.crate.analyze.CreateUserAnalyzedStatement;
-import io.crate.analyze.DropUserAnalyzedStatement;
-import io.crate.exceptions.UnsupportedFeatureException;
-import io.crate.metadata.sys.SysSchemaInfo;
 import io.crate.test.integration.CrateUnitTest;
-import org.elasticsearch.cluster.service.ClusterService;
 import org.junit.Test;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.containsString;
 
 public class UserManagementTest extends CrateUnitTest {
 
-    private class TestUserManager implements UserManager {
-
-        private CompletableFuture<Long> createResult() {
-            CompletableFuture<Long> result = new CompletableFuture<>();
-            result.complete(1L);
-            return result;
-        }
-
-        @Override
-        public void initialize(ClusterService clusterService, SysSchemaInfo sysSchemaInfo) {}
-
-        @Override
-        public CompletableFuture<Long> createUser(CreateUserAnalyzedStatement analysis) {
-            return createResult();
-        }
-
-        @Override
-        public CompletableFuture<Long> dropUser(DropUserAnalyzedStatement analysis) {
-            return createResult();
-        }
-    }
-
-    private class TestProvider extends UserManagerProvider {
-
-        private final UserManager manager;
-
-        private TestProvider(UserManager manager) {
-            super(null, null);
-            this.manager = manager;
-        }
-
-        @Override
-        public UserManager get() {
-            return manager;
-        }
-    }
-
     DDLStatementDispatcher ddlDispatcherCommunityEdition = new DDLStatementDispatcher(
             null, null, null, null, null, null,
-            new TestProvider(null),
+            new UserManagerProvider(null, null),
             null, null, null
         );
 
-    DDLStatementDispatcher ddlDispatcherEnterpriseEdition = new DDLStatementDispatcher(
-        null, null, null, null, null, null,
-        new TestProvider(new TestUserManager()),
-        null, null, null
-    );
-
     @Test
-    public void testCreateFunctionNoUserManager() {
-        expectedException.expect(UnsupportedFeatureException.class);
-        expectedException.expectMessage("CREATE USER is only supported in enterprise version");
-        ddlDispatcherCommunityEdition.dispatch(new CreateUserAnalyzedStatement("root"), null);
+    public void testNoopUserManagerLoaded() throws Exception {
+        expectedException.expect(ExecutionException.class);
+        expectedException.expectMessage(containsString("User management is only supported in enterprise version"));
+        ddlDispatcherCommunityEdition.dispatch(new CreateUserAnalyzedStatement("root"), null).get();
     }
 
-    @Test
-    public void testDropFunctionNoUserManager() {
-        expectedException.expect(UnsupportedFeatureException.class);
-        expectedException.expectMessage("DROP USER is only supported in enterprise version");
-        ddlDispatcherCommunityEdition.dispatch(new DropUserAnalyzedStatement("root"), null);
-    }
-
-    @Test
-    public void testCreateFunctionWithUserManager() throws Exception {
-        CompletableFuture<Long> res = ddlDispatcherEnterpriseEdition.dispatch(new CreateUserAnalyzedStatement("root"), null);
-        assertThat(res.get(), is(1L));
-    }
-
-    @Test
-    public void testDropFunctionWithUserManager() throws Exception {
-        CompletableFuture<Long> res = ddlDispatcherEnterpriseEdition.dispatch(new DropUserAnalyzedStatement("root"), null);
-        assertThat(res.get(), is(1L));
-    }
 }

@@ -22,30 +22,11 @@
 
 package io.crate.operation.user;
 
-import io.crate.analyze.CreateUserAnalyzedStatement;
-import io.crate.analyze.DropUserAnalyzedStatement;
+import io.crate.metadata.sys.SysSchemaInfo;
+import org.elasticsearch.cluster.service.ClusterService;
 
-import java.util.concurrent.CompletableFuture;
+public interface UserManagerFactory {
 
-/**
- * responsible for creating and deleting users
- */
-public interface UserManager {
-
-    /**
-     * creates a user
-     *
-     * @param analysis      analysed CREATE USER statement
-     * @return a future which returns the number of rows when the User is created
-     */
-    CompletableFuture<Long> createUser(CreateUserAnalyzedStatement analysis);
-
-
-    /**
-     * deletes a user
-     * @param analysis      analysed DROP USER statement
-     * @return a future which returns the number of rows when the User is dropped
-     */
-    CompletableFuture<Long> dropUser(DropUserAnalyzedStatement analysis);
+    UserManager create(ClusterService clusterService, SysSchemaInfo sysSchemaInfo);
 
 }
