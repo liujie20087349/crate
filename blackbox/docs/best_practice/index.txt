@@ -11,6 +11,7 @@ This is a collection of best practice examples how to use Crate in the wild.
 
    data_import
    cluster_upgrade
+   docker
    migrating_from_mysql
    migrating_from_mongodb
    ec2_setup
