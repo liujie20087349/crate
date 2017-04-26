@@ -35,11 +35,6 @@ import java.util.concurrent.CompletableFuture;
 public interface UserManager {
 
     /**
-     * initialize is called immediately after creating an instance
-     */
-    void initialize(ClusterService clusterService, SysSchemaInfo sysSchemaInfo);
-
-    /**
      * creates a user
      *
      * @param analysis      analysed CREATE USER statement
@@ -54,4 +49,10 @@ public interface UserManager {
      * @return a future which returns the number of rows when the User is dropped
      */
     CompletableFuture<Long> dropUser(DropUserAnalyzedStatement analysis);
+
+    interface Factory {
+
+        UserManager create(ClusterService clusterService, SysSchemaInfo sysSchemaInfo);
+
+    }
 }
