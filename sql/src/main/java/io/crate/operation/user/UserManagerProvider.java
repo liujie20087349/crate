@@ -22,6 +22,9 @@
 
 package io.crate.operation.user;
 
+import io.crate.analyze.CreateUserAnalyzedStatement;
+import io.crate.analyze.DropUserAnalyzedStatement;
+import io.crate.exceptions.UnsupportedFeatureException;
 import io.crate.metadata.sys.SysSchemaInfo;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.inject.Inject;
@@ -31,6 +34,7 @@ import org.elasticsearch.common.inject.Singleton;
 import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton
 public class UserManagerProvider implements Provider<UserManager> {
@@ -49,7 +53,7 @@ public class UserManagerProvider implements Provider<UserManager> {
             userManagerFactory = userManagerIterator.next();
         }
         if (userManagerFactory == null) {
-            this.userManager = null;
+            this.userManager = new NoopUserManager();
         } else {
             this.userManager = userManagerFactory.create(clusterService, sysSchemaInfo);
         }
@@ -59,5 +63,26 @@ public class UserManagerProvider implements Provider<UserManager> {
     @Override
     public UserManager get() {
         return userManager;
+    }
+
+    private static class NoopUserManager implements UserManager {
+
+        private CompletableFuture<Long> createErrorResult() {
+            CompletableFuture<Long> result = new CompletableFuture<>();
+            result.completeExceptionally(
+                new UnsupportedFeatureException("User management is only supported in enterprise version")
+            );
+            return result;
+        }
+
+        @Override
+        public CompletableFuture<Long> createUser(CreateUserAnalyzedStatement analysis) {
+            return createErrorResult();
+        }
+
+        @Override
+        public CompletableFuture<Long> dropUser(DropUserAnalyzedStatement analysis) {
+            return createErrorResult();
+        }
     }
 }

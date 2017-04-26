@@ -25,7 +25,6 @@ import io.crate.action.FutureActionListener;
 import io.crate.analyze.*;
 import io.crate.blob.v2.BlobAdminClient;
 import io.crate.data.Row;
-import io.crate.exceptions.UnsupportedFeatureException;
 import io.crate.executor.transport.AlterTableOperation;
 import io.crate.executor.transport.RepositoryService;
 import io.crate.executor.transport.SnapshotRestoreDDLDispatcher;
@@ -206,17 +205,11 @@ public class DDLStatementDispatcher {
 
         @Override
         protected CompletableFuture<Long> visitCreateUserStatement(CreateUserAnalyzedStatement analysis, Row parameters) {
-            if (userManager == null) {
-                throw new UnsupportedFeatureException("CREATE USER is only supported in enterprise version");
-            }
             return userManager.createUser(analysis);
         }
 
         @Override
         protected CompletableFuture<Long> visitDropUserStatement(DropUserAnalyzedStatement analysis, Row parameters) {
-            if (userManager == null) {
-                throw new UnsupportedFeatureException("DROP USER is only supported in enterprise version");
-            }
             return userManager.dropUser(analysis);
         }
     }
