@@ -7,4 +7,4 @@ install:
 build_script:
 - cmd: gradlew.bat compileJava
 test_script:
-- ps: for($i=1; $i -le 20; $i++){gradlew.bat "-Dtest.single=SysCheckerIntegrationTest" :sql:test}
+- ps: for($i=1; $i -le 20; $i++){./gradlew "-Dtest.single=SysCheckerIntegrationTest" :sql:test}
