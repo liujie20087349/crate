@@ -1,61 +1,55 @@
-=============================
-CrateDB Docker Best Practices
-=============================
+==================
+CrateDB and Docker
+==================
 
-Quick Start Example
-===================
+CrateDB and Docker_ are a great match thanks to CrateDB's shared-nothing,
+horizontally scalable architecture that lends itself well to containerization.
 
-If you want to jump right in, here's a quick start example that could be used to
-run CrateDB in a multi-host production environment.
+This document covers the essentials of running CrateDB and Docker using the
+official `CrateDB Docker image`_.
 
-This configuration includes:
+.. NOTE::
 
-- Volume mapping
-- Port mapping to localhost (requires one container per host)
-- Unicast host discovery
+   If you're just getting started with CrateDB and Docker, check out our
+   introductory guides for `running Docker locally`_ or `Docker Cloud`_.
 
-On the first host, run something like this:
+Forming a Cluster
+=================
 
-.. code-block:: sh
-
-    $ HOSTS="node1.example.com:4300,node2.example.com:4300,node3.example.com:4300"
-    $ HOST="node1.example.com"
-    $ docker run -d -p 4200:4200 -p 4300:4300 \
-        --name crate1-container \
-        --volume /mnt/data:/data \
-        --ulimit nofile=65535 \
-        --ulimit memlock=9223372036854775807 \
-            crate \
-            crate \
-              -Ccluster.name=crate-cluster \
-              -Cnode.name=crate1 \
-              -Ctransport.publish_port=4300 \
-              -Cnetwork.publish_host="$HOST" \
-              -Cmulticast.enabled=false \
-              -Cdiscovery.zen.ping.unicast.hosts="$HOSTS" \
-              -Cdiscovery.zen.minimum_master_nodes=2
-
-On each additional host, modify the ``HOST`` variable, and run the same command.
-
-Docker Guide
-============
-
-Form a Cluster
---------------
-
-To form a cluster from scratch, start a few instances of the CrateDB container
-as a background daemon:
+To form a cluster, run a few instances of the ``crate`` image as a daemon:
 
 .. code-block:: sh
 
-    $ docker run -d crate crate
+    sh$ docker run -d crate crate
+
+You should then see a few run ``crate`` containers:
+
+.. code-block:: txt
+
+    sh$ docker ps
+    CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                               NAMES
+    c3f581764a2e        crate               "/docker-entrypoin..."   5 seconds ago       Up 4 seconds        4200/tcp, 4300/tcp, 5432-5532/tcp   nifty_benz
+    abdc731b9f2f        crate               "/docker-entrypoin..."   7 seconds ago       Up 6 seconds        4200/tcp, 4300/tcp, 5432-5532/tcp   keen_pike
+    29944b0e4f99        crate               "/docker-entrypoin..."   11 seconds ago      Up 8 seconds        4200/tcp, 4300/tcp, 5432-5532/tcp   trusting_stallman
+
+Grab one of those container IDs and get the IP address, like so:
+
+.. code-block:: sh
+
+    sh$ docker inspect --format='{{.NetworkSettings.IPAddress}}' c3f581764a2e
+    172.17.0.5
+
+Now, you can access the admin UI for that container by accessing it on port 4200
+with your browser. In this instance, we would visit::
+
+    http://172.17.0.5:4200/
 
 To access the admin UI, map port 4200, and point your browser to port 4200 of
 a node of your choice while you start it or look up its IP later:
 
 .. code-block:: sh
 
-    $ firefox "http://$(docker inspect --format='{{.NetworkSettings.IPAddress}}' $(docker run -d crate crate)):4200/admin"
+    $ open "http://$(docker inspect --format='{{.NetworkSettings.IPAddress}}' $(docker run -d crate crate)):4200/admin"
 
 For production use it's strongly recommended to use only one container per
 machine. This will give the best possible performance and by mapping the ports
@@ -165,6 +159,46 @@ executable is already in the ``$PATH`` environment variable, simply run:
 
     $ docker run --rm -ti crate crash --hosts [host1, host2, ...]
 
+
+Full Example
+============
+
+If you want to jump right in, here's a quick start example that could be used to
+run CrateDB in a multi-host production environment.
+
+This configuration includes:
+
+- Volume mapping
+- Port mapping to localhost (requires one container per host)
+- Unicast host discovery
+
+On the first host, run something like this:
+
+.. code-block:: sh
+
+    $ HOSTS="node1.example.com:4300,node2.example.com:4300,node3.example.com:4300"
+    $ HOST="node1.example.com"
+    $ docker run -d -p 4200:4200 -p 4300:4300 \
+        --name crate1-container \
+        --volume /mnt/data:/data \
+        --ulimit nofile=65535 \
+        --ulimit memlock=9223372036854775807 \
+            crate \
+            crate \
+              -Ccluster.name=crate-cluster \
+              -Cnode.name=crate1 \
+              -Ctransport.publish_port=4300 \
+              -Cnetwork.publish_host="$HOST" \
+              -Cmulticast.enabled=false \
+              -Cdiscovery.zen.ping.unicast.hosts="$HOSTS" \
+              -Cdiscovery.zen.minimum_master_nodes=2
+
+On each additional host, modify the ``HOST`` variable, and run the same command.
+
 .. _assign about half of your memory: https://crate.io/docs/reference/en/latest/configuration.html#crate-heap-size
 .. _Configuration: https://crate.io/docs/stable/configuration.html
+.. _CrateDB Docker image: https://hub.docker.com/_/crate/
+.. _Docker Cloud: https://crate.io/docs/install/containers/docker-cloud/
+.. _Docker: https://www.docker.com/
 .. _enable unicast: https://crate.io/docs/reference/best_practice/multi_node_setup.html
+.. _running Docker locally: https://crate.io/docs/install/containers/docker/
