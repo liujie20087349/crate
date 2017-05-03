@@ -200,18 +200,17 @@ public class ManyTableConsumer implements Consumer {
 
         QualifiedName leftName = it.next();
         QuerySpec rootQuerySpec = mss.querySpec();
-        RelationSource leftSource = mss.sources().get(leftName);
-        AnalyzedRelation leftRelation = leftSource.relation();
-        QuerySpec leftQuerySpec = leftSource.querySpec();
+        QueriedRelation leftRelation = (QueriedRelation) mss.sources().get(leftName);
+        QuerySpec leftQuerySpec = leftRelation.querySpec();
         Optional<RemainingOrderBy> remainingOrderBy = mss.remainingOrderBy();
         List<JoinPair> joinPairs = mss.joinPairs();
         List<TwoTableJoin> twoTableJoinList = new ArrayList<>(orderedRelationNames.size());
 
         QualifiedName rightName;
-        RelationSource rightSource;
+        QueriedRelation rightRelation;
         while (it.hasNext()) {
             rightName = it.next();
-            rightSource = mss.sources().get(rightName);
+            rightRelation = (QueriedRelation) mss.sources().get(rightName);
 
             // process where clause
             Set<QualifiedName> names = Sets.newHashSet(leftName, rightName);
@@ -231,13 +230,13 @@ public class ManyTableConsumer implements Consumer {
             // get explicit join definition
             JoinPair joinPair = JoinPairs.ofRelationsWithMergedConditions(leftName, rightName, joinPairs, true);
 
-            JoinPairs.removeOrderByOnOuterRelation(leftName, rightName, leftQuerySpec, rightSource.querySpec(), joinPair);
+            JoinPairs.removeOrderByOnOuterRelation(leftName, rightName, leftQuerySpec, rightRelation.querySpec(), joinPair);
 
             // NestedLoop will add NULL rows - so order by needs to be applied after the NestedLoop
             TwoTableJoin join = new TwoTableJoin(
                 newQuerySpec,
-                new RelationSource(leftRelation, leftQuerySpec),
-                rightSource,
+                leftRelation,
+                rightRelation,
                 remainingOrderByToApply,
                 joinPair
             );
@@ -329,10 +328,10 @@ public class ManyTableConsumer implements Consumer {
         QualifiedName left = it.next();
         QualifiedName right = it.next();
         JoinPair joinPair = JoinPairs.ofRelationsWithMergedConditions(left, right, mss.joinPairs(), true);
-        RelationSource leftSource = mss.sources().get(left);
-        RelationSource rightSource = mss.sources().get(right);
+        QueriedRelation leftRelation = (QueriedRelation) mss.sources().get(left);
+        QueriedRelation rightRelation = (QueriedRelation) mss.sources().get(right);
 
-        JoinPairs.removeOrderByOnOuterRelation(left, right, leftSource.querySpec(), rightSource.querySpec(), joinPair);
+        JoinPairs.removeOrderByOnOuterRelation(left, right, leftRelation.querySpec(), rightRelation.querySpec(), joinPair);
 
         Optional<OrderBy> remainingOrderByToApply = Optional.empty();
         if (mss.remainingOrderBy().isPresent() &&
@@ -342,8 +341,8 @@ public class ManyTableConsumer implements Consumer {
 
         return new TwoTableJoin(
             mss.querySpec(),
-            leftSource,
-            rightSource,
+            leftRelation,
+            rightRelation,
             remainingOrderByToApply,
             joinPair
         );
@@ -494,9 +493,9 @@ public class ManyTableConsumer implements Consumer {
 
     private static class FieldToRelationColumn implements Function<Field, Symbol> {
 
-        private final Map<QualifiedName, RelationSource> sources;
+        private final Map<QualifiedName, AnalyzedRelation> sources;
 
-        FieldToRelationColumn(Map<QualifiedName, RelationSource> sources) {
+        FieldToRelationColumn(Map<QualifiedName, AnalyzedRelation> sources) {
             this.sources = sources;
         }
 
@@ -504,7 +503,7 @@ public class ManyTableConsumer implements Consumer {
         public Symbol apply(Field field) {
             QualifiedName qualifiedName = field.relation().getQualifiedName();
             int idx = 0;
-            for (Symbol symbol : sources.get(qualifiedName).querySpec().outputs()) {
+            for (Symbol symbol : ((QueriedRelation) sources.get(qualifiedName)).querySpec().outputs()) {
                 if (symbol instanceof Field) {
                     if (((Field) symbol).path().equals(field.path())) {
                         return new RelationColumn(qualifiedName, idx, field.valueType());

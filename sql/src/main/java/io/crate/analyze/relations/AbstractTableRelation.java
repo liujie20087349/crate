@@ -176,7 +176,12 @@ public abstract class AbstractTableRelation<T extends TableInfo> implements Anal
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + '{' + tableInfo.ident() + '}';
+        String tableName = tableInfo.ident().toString();
+        String qualifiedName = this.qualifiedName.toString();
+        if (tableName.equals(qualifiedName)) {
+            return getClass().getSimpleName() + '{' + tableInfo.ident() + '}';
+        }
+        return getClass().getSimpleName() + '{' + tableName + " AS " + qualifiedName + '}';
     }
 
 

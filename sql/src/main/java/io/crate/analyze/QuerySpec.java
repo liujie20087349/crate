@@ -241,7 +241,7 @@ public class QuerySpec {
     }
 
 
-    public QuerySpec copyAndReplace(Function<? super Symbol, Symbol> replaceFunction) {
+    public QuerySpec copyAndReplace(Function<? super Symbol, ? extends Symbol> replaceFunction) {
         QuerySpec newSpec = new QuerySpec()
             .limit(limit)
             .offset(offset)

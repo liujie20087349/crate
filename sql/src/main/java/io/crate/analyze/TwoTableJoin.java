@@ -40,16 +40,16 @@ import java.util.Optional;
 public class TwoTableJoin implements QueriedRelation {
 
     private final QuerySpec querySpec;
-    private final RelationSource left;
-    private final RelationSource right;
+    private final QueriedRelation left;
+    private final QueriedRelation right;
     private final Optional<OrderBy> remainingOrderBy;
     private final List<Field> fields;
     private final QualifiedName name;
     private final JoinPair joinPair;
 
     public TwoTableJoin(QuerySpec querySpec,
-                        RelationSource left,
-                        RelationSource right,
+                        QueriedRelation left,
+                        QueriedRelation right,
                         Optional<OrderBy> remainingOrderBy,
                         JoinPair joinPair) {
         this.querySpec = querySpec;
@@ -57,8 +57,8 @@ public class TwoTableJoin implements QueriedRelation {
         this.right = right;
         this.name = QualifiedName.of(
             "join",
-            left.relation().getQualifiedName().toString(),
-            right.relation().getQualifiedName().toString());
+            left.getQualifiedName().toString(),
+            right.getQualifiedName().toString());
         this.remainingOrderBy = remainingOrderBy;
         this.joinPair = joinPair;
         fields = new ArrayList<>(querySpec.outputs().size());
@@ -71,11 +71,11 @@ public class TwoTableJoin implements QueriedRelation {
         return remainingOrderBy;
     }
 
-    public RelationSource left() {
+    public QueriedRelation left() {
         return left;
     }
 
-    public RelationSource right() {
+    public QueriedRelation right() {
         return right;
     }
 
@@ -114,11 +114,11 @@ public class TwoTableJoin implements QueriedRelation {
     }
 
     public QualifiedName leftName() {
-        return left.relation().getQualifiedName();
+        return left.getQualifiedName();
     }
 
     public QualifiedName rightName() {
-        return right.relation().getQualifiedName();
+        return right.getQualifiedName();
     }
 
     @Override
