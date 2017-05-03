@@ -32,43 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.hamcrest.Matchers.is;
 
 @UseJdbc
-public class CreateTableIntegrationTest extends SQLTransportIntegrationTest {
+public class OpenCloseTableIntegrationTest extends SQLTransportIntegrationTest {
 
-    @Test
-    public void testCreateTableIfNotExistsConcurrently() throws Throwable {
-        executeCreateTableThreaded("create table if not exists t (name string) with (number_of_replicas = 0)");
-    }
-
-    @Test
-    public void testCreatePartitionedTableIfNotExistsConcurrently() throws Throwable {
-        executeCreateTableThreaded("create table if not exists t " +
-                                   "(name string, p string) partitioned by (p) " +
-                                   "with (number_of_replicas = 0)");
-    }
-
-    private void executeCreateTableThreaded(final String statement) throws Throwable {
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
-        final AtomicReference<Throwable> lastThrowable = new AtomicReference<>();
-
-        for (int i = 0; i < 20; i++) {
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        execute(statement);
-                    } catch (Throwable t) {
-                        lastThrowable.set(t);
-                    }
-                }
-            });
-        }
-
-        executorService.shutdown();
-        assertThat("executorservice did not shutdown within timeout", executorService.awaitTermination(3, TimeUnit.SECONDS), is(true));
-
-        Throwable throwable = lastThrowable.get();
-        if (throwable != null) {
-            throw throwable;
-        }
-    }
 }
