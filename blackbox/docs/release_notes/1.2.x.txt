@@ -1,0 +1,62 @@
+.. _1.2.x_series:
+
+====================
+1.2.x Release Series
+====================
+
+Versions
+========
+
+.. toctree::
+    :maxdepth: 1
+
+    1.2.0
+
+Upgrade Guide
+=============
+
+.. NOTE::
+
+   To upgrade to the the 1.2.x release series, you must first be running the
+   latest version of the :ref:`1.1.x_series`.
+
+Daemon User
+-----------
+
+Since :ref:`version_1.2.0`, you cannot run CrateDB as the superuser on
+Unix-like systems. Instead, you must create a new ``crate`` user for running
+the CrateDB daemon.
+
+System Properties
+-----------------
+
+Prior to :ref:`version_1.2.0`, CrateDB allowed you to pass in configuration
+values via the use of command-line system properties, like so::
+
+    sh$ ./bin/crate -Ccluster.name=cluster
+
+This is no longer possible. You must update your scripts as necessary.
+
+Bind Address
+------------
+
+In :ref:`version_1.2.0`, the default bind address was changed from `0.0.0.0` to
+the loopback address. If you want to keep binding to a public IP, you must add
+the following line to your :ref:`configuration` file::
+
+    network.host: 0.0.0.0
+
+Configuration Settings
+----------------------
+
+Some configuration settings and files were renamed or removed in 1.2.x. You
+must review the release notes for :ref:`version_1.2.0` and update your setup as
+necessary.
+
+Time Values
+-----------
+
+The parsing of time values changed in :ref:`version_1.2.0`. You must update your
+application code accordingly.
+
+

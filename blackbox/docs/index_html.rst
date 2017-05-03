@@ -18,6 +18,7 @@ Contents
 
    architecture/index
    release_notes/index
+   upgrade_notes/index
    installation
    configuration
    cli
