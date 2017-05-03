@@ -81,4 +81,12 @@ abstract class InformationTablePartitionsExpression<T>
             return new BytesRef(DocIndexMetaData.getRoutingHashFunctionPrettyName(row.routingHashFunction()));
         }
     }
+
+    public static class ClosedExpression
+        extends InformationTablePartitionsExpression<BytesRef> {
+        @Override
+        public BytesRef value() {
+            return new BytesRef(Boolean.toString(row.closed()));
+        }
+    }
 }

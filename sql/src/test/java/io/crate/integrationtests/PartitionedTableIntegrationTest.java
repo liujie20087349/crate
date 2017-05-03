@@ -229,9 +229,10 @@ public class PartitionedTableIntegrationTest extends SQLTransportIntegrationTest
 
         execute("select * from information_schema.tables where table_schema='doc' order by table_name");
         assertThat(response.rowCount(), is(1L));
-        assertThat(response.rows()[0][8], is("quotes"));
-        assertThat(response.rows()[0][6], is(DocIndexMetaData.DEFAULT_ROUTING_HASH_FUNCTION_PRETTY_NAME));
-        TestingHelpers.assertCrateVersion(response.rows()[0][10], Version.CURRENT, null);
+        assertThat(response.rows()[0][9], is("quotes"));
+        assertThat(response.rows()[0][7], is(DocIndexMetaData.DEFAULT_ROUTING_HASH_FUNCTION_PRETTY_NAME));
+        assertThat(response.rows()[0][1], is(false));
+        TestingHelpers.assertCrateVersion(response.rows()[0][11], Version.CURRENT, null);
         execute("select * from information_schema.columns where table_name='quotes' order by ordinal_position");
         assertThat(response.rowCount(), is(3L));
         assertThat(response.rows()[0][0], is("id"));
