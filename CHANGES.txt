@@ -31,6 +31,9 @@ Changes
 Fixes
 =====
 
+ - Fixed an issue which caused failing `sys.snapshot` queries if the
+   `data.path` of an existing fs repository was not configured anymore
+
  - Use the region of the EC2 instance for EC2 discovery when neither
    ``cloud.aws.ec2.endpoint`` nor ``cloud.aws.region`` are specified or do not
    resolve in a valid service endpoint.
