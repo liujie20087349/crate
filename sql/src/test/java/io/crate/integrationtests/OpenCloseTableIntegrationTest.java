@@ -34,4 +34,50 @@ import static org.hamcrest.Matchers.is;
 @UseJdbc
 public class OpenCloseTableIntegrationTest extends SQLTransportIntegrationTest {
 
+    @Test
+    public void testOpenTable() throws Exception {
+        execute("create table t (i int)");
+        ensureYellow();
+
+        execute("alter table t open");
+        assertEquals(0, response.rowCount());
+
+        execute("select closed from information_schema.tables where table_name = 't'");
+
+        assertEquals(1, response.rowCount());
+        assertEquals(false, response.rows()[0][0]);
+    }
+
+    @Test
+    public void testCloseTable() throws Exception {
+        execute("create table t (i int)");
+        ensureYellow();
+
+        execute("alter table t close");
+        assertEquals(0, response.rowCount());
+
+        execute("select closed from information_schema.tables where table_name = 't'");
+
+        assertEquals(1, response.rowCount());
+        assertEquals(true, response.rows()[0][0]);
+    }
+
+    @Test
+    public void testReopenTable() throws Exception {
+        execute("create table t (i int)");
+        ensureYellow();
+
+        execute("alter table t close");
+        refresh();
+
+        execute("select closed from information_schema.tables where table_name = 't'");
+        assertEquals(1, response.rowCount());
+        assertEquals(true, response.rows()[0][0]);
+
+        execute("alter table t open");
+
+        execute("select closed from information_schema.tables where table_name = 't'");
+        assertEquals(1, response.rowCount());
+        assertEquals(false, response.rows()[0][0]);
+    }
 }
