@@ -31,6 +31,9 @@ Changes
 Fixes
 =====
 
+ - Fixed `copy from` to be able to copy data for partitioned tables with a 
+   generated column as both the primary key and the partitioned column.
+
  - Use the region of the EC2 instance for EC2 discovery when neither
    ``cloud.aws.ec2.endpoint`` nor ``cloud.aws.region`` are specified or do not
    resolve in a valid service endpoint.
