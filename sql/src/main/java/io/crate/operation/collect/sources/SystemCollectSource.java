@@ -126,7 +126,7 @@ public class SystemCollectSource implements CollectSource {
             .put(SysNodeChecksTableInfo.IDENT.fqn(),
                 () -> synchronousIterableGetter(sysNodeChecks))
             .put(SysRepositoriesTableInfo.IDENT.fqn(),
-                () -> synchronousIterableGetter(repositoriesService.repositoriesGetter()))
+                () -> synchronousIterableGetter(repositoriesService.getRepositoriesList()))
             .put(SysSnapshotsTableInfo.IDENT.fqn(), snapshotSupplier(sysSnapshots))
             .put(SysSummitsTableInfo.IDENT.fqn(),
                 () -> synchronousIterableGetter(new SummitsIterable().summitsGetter()))

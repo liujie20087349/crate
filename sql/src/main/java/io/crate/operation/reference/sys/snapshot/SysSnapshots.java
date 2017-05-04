@@ -50,7 +50,7 @@ public class SysSnapshots {
 
     public Iterable<SysSnapshot> snapshotsGetter() {
         List<SysSnapshot> sysSnapshots = new ArrayList<>();
-        for (Repository repository : repositoriesService.repositoriesGetter()) {
+        for (Repository repository : repositoriesService.getRepositoriesList()) {
             final String repositoryName = repository.getMetadata().name();
 
 
