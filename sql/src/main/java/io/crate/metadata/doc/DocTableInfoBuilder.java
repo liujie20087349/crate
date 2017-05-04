@@ -106,7 +106,8 @@ class DocTableInfoBuilder {
         }
         for (String concreteIndex : concreteIndices) {
             if (IndexMetaData.State.CLOSE.equals(metaData.indices().get(concreteIndex).getState())) {
-                if(!buildDocIndexMetaData(concreteIndex).closed()) {
+                DocIndexMetaData concreteIndexMetaData = buildDocIndexMetaData(concreteIndex);
+                if(!concreteIndexMetaData.closed()) {
                     // If the index's state is closed, but the metadata on the index states that it is not, then fail.
                     throw new UnhandledServerException(
                         String.format(Locale.ENGLISH, "Unable to access the partition %s, it is closed", concreteIndex));

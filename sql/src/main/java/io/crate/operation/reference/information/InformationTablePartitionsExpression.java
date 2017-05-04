@@ -82,11 +82,10 @@ abstract class InformationTablePartitionsExpression<T>
         }
     }
 
-    public static class ClosedExpression
-        extends InformationTablePartitionsExpression<BytesRef> {
+    public static class ClosedExpression extends InformationTablePartitionsExpression<Boolean> {
         @Override
-        public BytesRef value() {
-            return new BytesRef(Boolean.toString(row.closed()));
+        public Boolean value() {
+            return row.closed();
         }
     }
 }
