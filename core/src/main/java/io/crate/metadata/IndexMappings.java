@@ -39,6 +39,15 @@ public final class IndexMappings {
                         "org.elasticsearch.cluster.routing.DjbHashFunction", "Djb",
                         "org.elasticsearch.cluster.routing.Murmur3HashFunction", "Murmur3");
 
+    public static final Map<String, Object> DEFAULT_TABLE_MAPPING;
+
+    static {
+        DEFAULT_TABLE_MAPPING = new HashMap<>(1);
+        Map<String, Object> metaMap = new HashMap<>(1);
+        putDefaultSettingsToMeta(metaMap);
+        DEFAULT_TABLE_MAPPING.put("_meta", metaMap);
+    }
+
     public static void putDefaultSettingsToMeta(Map<String, Object> metaMap) {
         // set the default routing hash function type
         metaMap.put(IndexMappings.SETTING_ROUTING_HASH_FUNCTION, IndexMappings.DEFAULT_ROUTING_HASH_FUNCTION);
